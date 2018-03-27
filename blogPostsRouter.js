@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 
 const { BlogPosts } = require('./blogPostsModel');
 
+BlogPosts.create('in the beginning', 'there was the word', 'anonymous');
+BlogPosts.create('in vino', 'veritas, verily, warily, scarily', 'leo tolstoy');
+
 const jsonParser = bodyParser.json();
 
 router.get('/', (req, res) => {
@@ -12,7 +15,7 @@ router.get('/', (req, res) => {
 
 router.post('/',jsonParser, (req, res) => {
   const requiredFields = ['id', 'title', 'content', 'author'];
-  
+
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!field) {
@@ -36,18 +39,18 @@ router.put('/:id', jsonParser, (req, res) => {
       return res.status(400).send(message);
     }
   }
-  
+
   if (req.params.id !== req.body.id) {
     const message = `Request path id (${req.params.id}) and request body id (${req.body.id}) must match.`;
     console.error(message);
     return res.status(400).send(message);
   }
-  
+
   console.log(`Updating blog post: ${req.params.id}`);
   BlogPosts.update({
-    id: req.params.id, 
-    title: req.body.title, 
-    content: req.body.content, 
+    id: req.params.id,
+    title: req.body.title,
+    content: req.body.content,
     author: req.body.author
   });
   res.status(204).end();
