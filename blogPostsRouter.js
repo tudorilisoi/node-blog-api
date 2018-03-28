@@ -1,19 +1,35 @@
+'use strict';
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
 const express = require('express');
 const router = express.Router();
-const bodyParser = require('body-parser');
 
-const { BlogPosts } = require('./blogPostsModel');
+mongoose.Promise = global.Promise;
 
-BlogPosts.create('in the beginning', 'there was the word', 'anonymous');
-BlogPosts.create('in vino', 'veritas, verily, warily, scarily', 'leo tolstoy');
+const { PORT, DATABASE_URL } = require('./config');
+const { BlogPost } = require('./blogPostsModel');
 
 const jsonParser = bodyParser.json();
+router.use(jsonParser);
 
 router.get('/', (req, res) => {
-  res.json(BlogPosts.get());
-})
+  BlogPost
+    .find()
+    .limit(5)
+    .then(blogPosts => {
+      res.json({
+        blogPosts: blogPosts.map(
+          (post) => post.serialize())
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: 'Internal server error'});
+    })
+});
 
-router.post('/',jsonParser, (req, res) => {
+router.post('/', (req, res) => {
   const requiredFields = ['id', 'title', 'content', 'author'];
 
   for (let i = 0; i < requiredFields.length; i++) {
