@@ -18,6 +18,10 @@ app.get('/', (req, res) => {
 
 app.use('/blog-posts', blogPostsRouter);
 
+app.use('*', function (req, res) {
+  res.status(404).json({ message: 'Not Found' });
+});
+
 let server;
 function runServer() {
   const port = process.env.PORT || 8080;
