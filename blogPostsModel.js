@@ -1,6 +1,8 @@
 'use strict';
 
 const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+
 
 //blog schema
 const blogPostSchema = mongoose.Schema({
@@ -31,7 +33,7 @@ blogPostSchema.methods.serialize = function() {
     id: this._id,
     title: this.title,
     content: this.content,
-    author: this.author,
+    author: this.authorName,
     publishDate: this.publishDate
   };
 }
