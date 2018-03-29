@@ -7,24 +7,28 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
+let serverPromise
+
 describe('Blog Posts', function() {
 
   before(function() {
-    return runServer();
+    serverPromise =  runServer();
   });
 
   after(function() {
+    serverPromise = null
     return closeServer();
   });
 
   it('should list items on GET', function() {
 
-    return chai.request(app)
-      .get('/blog-posts')
+    return serverPromise.then(()=>chai.request(app)
+      .get('/posts')
       .then(function(res) {
         expect(res).to.have.status(200);
         expect(res).to.be.json;
         expect(res.body).to.be.a('array');
+        console.log("GOT /posts JSON")
 
         expect(res.body.length).to.be.at.least(1);
         const expectedKeys = ['id', 'title', 'content', 'author', 'publishDate'];
@@ -32,7 +36,7 @@ describe('Blog Posts', function() {
           expect(item).to.be.a('object');
           expect(item).to.include.keys(expectedKeys);
         });
-      });
+      }));
   });
 
 

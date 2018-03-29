@@ -17,7 +17,6 @@ const jsonParser = bodyParser.json();
 app.use(morgan('common'));
 app.use(jsonParser);
 
-
 app.get('/posts', (req, res) => {
   BlogPost
     .find()
@@ -117,9 +116,15 @@ app.use('*', function (req, res) {
 
 
 let server;
+let serverPromise = null
 
 function runServer(databaseUrl, port = PORT) {
-  return new Promise((resolve, reject) => {
+
+  if(serverPromise){
+    return serverPromise
+  }
+
+   serverPromise = new Promise((resolve, reject) => {
     mongoose.connect(DATABASE_URL, err => {
       if (err) {
         return reject(err);
@@ -134,9 +139,11 @@ function runServer(databaseUrl, port = PORT) {
         });
     });
   });
+  return serverPromise
 }
 
 function closeServer() {
+  serverPromise = null
   return new Promise((resolve, reject) => {
     if(!server){
       resolve()
