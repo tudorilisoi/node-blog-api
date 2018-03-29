@@ -1,6 +1,6 @@
 'use strict';
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose').set('debug', true);
 mongoose.Promise = global.Promise;
 
 //blog schema

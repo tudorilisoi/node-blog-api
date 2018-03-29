@@ -1,7 +1,9 @@
+
+
 'use strict';
 const bodyParser = require('body-parser');
 const express = require('express');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose').set('debug', true);
 const morgan = require('morgan');
 
 mongoose.Promise = global.Promise;
@@ -14,6 +16,7 @@ const jsonParser = bodyParser.json();
 
 app.use(morgan('common'));
 app.use(jsonParser);
+
 
 app.get('/posts', (req, res) => {
   BlogPost
@@ -115,20 +118,30 @@ app.use('*', function (req, res) {
 
 let server;
 
-function runServer() {
-  const port = process.env.PORT || 8080;
+function runServer(databaseUrl, port = PORT) {
   return new Promise((resolve, reject) => {
-    server = app.listen(port, () => {
-      console.log(`Your app is listening on port ${port}`);
-      resolve(server);
-    }).on('error', err => {
-      reject(err)
+    mongoose.connect(DATABASE_URL, err => {
+      if (err) {
+        return reject(err);
+      }
+      server = app.listen(port, () => {
+        console.log(`Your app is running on  http://localhost:${port}`);
+        resolve();
+      })
+        .on('error', err => {
+          mongoose.disconnect();
+          reject(err);
+        });
     });
   });
 }
 
 function closeServer() {
   return new Promise((resolve, reject) => {
+    if(!server){
+      resolve()
+      return
+    }
     console.log('Closing server');
     server.close(err => {
       if (err) {
